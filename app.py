@@ -15,7 +15,6 @@ def execute_query(query, socket):
         result = json.dumps({'type': 'result', 'value': value})
         socket.write_message(result)
 
-
     compute.compute(query, cb, cbu)
 
 def update_clients():
