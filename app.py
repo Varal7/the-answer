@@ -1,21 +1,22 @@
 from tornado import websocket, web, ioloop
 import json
-import time
-import random
+import compute
 
 cl = []
 
 
 def execute_query(query, socket):
     # Do something here
-    for i in range(101):
-        time.sleep(i / 2000)
-        socket.update_progress(i)
+    def cbu(percentage):
+        socket.update_progress(percentage)
 
-    value = random.randint(0, 100)
-    result = json.dumps({'type': 'result', 'value': value})
-    socket.write_message(result)
+    def cb(value):
+        cbu(100)
+        result = json.dumps({'type': 'result', 'value': value})
+        socket.write_message(result)
 
+
+    compute.compute(query, cb, cbu)
 
 def update_clients():
     broadcast(json.dumps({
