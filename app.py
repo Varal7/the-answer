@@ -1,14 +1,31 @@
 from tornado import websocket, web, ioloop
 import json
+import time
+import random
 
 cl = []
 
 
-def compute_something(query):
+def execute_query(query, socket):
     # Do something here
-    result = json.dumps({'value': 42})
+    for i in range(101):
+        time.sleep(i / 2000)
+        socket.update_progress(i)
+
+    value = random.randint(0, 100)
+    result = json.dumps({'type': 'result', 'value': value})
+    socket.write_message(result)
+
+
+def update_clients():
+    broadcast(json.dumps({
+        'type': 'nb_clients',
+        'value': len(cl)
+    }))
+
+def broadcast(message):
     for c in cl:
-        c.write_message(result)
+        c.write_message(message)
 
 class IndexHandler(web.RequestHandler):
     def get(self):
@@ -21,14 +38,22 @@ class SocketHandler(websocket.WebSocketHandler):
     def open(self):
         if self not in cl:
             cl.append(self)
+        update_clients()
 
     def on_close(self):
         if self in cl:
             cl.remove(self)
+        update_clients()
 
-    def on_message(self, message):
-        compute_something(message)
+    def on_message(self, query):
+        execute_query(query, self)
 
+    def update_progress(self, percentage):
+        progress_message = json.dumps({
+            'type': 'progress_update',
+            'value': percentage
+        })
+        self.write_message(progress_message)
 
 class ApiHandler(web.RequestHandler):
 
@@ -51,7 +76,7 @@ app = web.Application([
     (r'/api', ApiHandler),
     (r'/(favicon.ico)', web.StaticFileHandler, {'path': '../'}),
     (r'/(search.js|style.css|img/giphy.gif)', web.StaticFileHandler, {'path': './'}),
-])
+], debug=True)
 
 if __name__ == '__main__':
     app.listen(8888)

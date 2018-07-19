@@ -15,14 +15,18 @@
         <h1 class="text-center"><samp>The answer</samp><br /><small>to life, the universe and everything</small></h1>
         </div>
         <div class="container text-center">
-        WebSocket status : <span id="message"></span>
+            <p>WebSocket status : <span id="message"></span></p>
+            <p>Number of clients: <span id="connexions" class="label label-success">1</span></p>
             <p> <br /> <br /> </p>
             <form id="form" class="form-horizontal text-center">
                 <div class="form-group">
-                        <button class="center-block btn btn-success" type="submit">Compute</button>
+                        <button class="center-block btn btn-success" type="button" id="button">Compute</button>
                 </div>
             </form>
             <p><br /></p>
+            <div id="myProgress">
+            <div id="myBar"></div>
+            </div>
             <div class="text-center" id="results">
             </div>
             <p><br /></p>
